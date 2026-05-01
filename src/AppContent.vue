@@ -1,5 +1,6 @@
 <script setup lang="tsx">
 import { onMounted, ref, watch } from 'vue'
+import type { TabsInst } from 'naive-ui'
 import { useMessage, useNotification } from 'naive-ui'
 import { commands } from './bindings.ts'
 import { useStore } from './store.ts'
@@ -28,6 +29,8 @@ const localeOptions = Object.entries(locales).map(([key, value]) => ({
 }))
 
 const searchPaneRef = ref<InstanceType<typeof SearchPane>>()
+const tabsInstRef = ref<TabsInst | null>(null)
+watch(locale, () => tabsInstRef.value?.syncBarPosition(), { flush: 'post' })
 
 watch(
   () => store.config,
@@ -83,7 +86,7 @@ onMounted(async () => {
 <template>
   <div v-if="store.config !== undefined" class="h-screen flex flex-col">
     <div class="flex flex-1 overflow-hidden">
-      <n-tabs class="h-full w-1/2" v-model:value="store.currentTabName" type="line" size="small" animated>
+      <n-tabs ref="tabsInstRef" class="h-full w-1/2" v-model:value="store.currentTabName" type="line" size="small" animated>
         <n-tab-pane
           class="h-full overflow-auto p-0!"
           name="search"

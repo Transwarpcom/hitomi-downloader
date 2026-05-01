@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import type { TabsInst } from 'naive-ui'
 import { events, commands } from '../bindings.ts'
 import { open } from '@tauri-apps/plugin-dialog'
 import UncompletedProgresses from '../components/UncompletedProgresses.vue'
@@ -10,7 +11,9 @@ import { PhFolderOpen, PhGearSix } from '@phosphor-icons/vue'
 import SettingsDialog from '../components/SettingsDialog.vue'
 import { ProgressData } from '../types.ts'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const tabsInstRef = ref<TabsInst | null>(null)
+watch(locale, () => tabsInstRef.value?.syncBarPosition(), { flush: 'post' })
 
 const store = useStore()
 
@@ -158,7 +161,7 @@ async function showDownloadDirInFileManager() {
       </n-button>
     </div>
 
-    <n-tabs class="h-full overflow-auto" type="line" size="small" animated>
+    <n-tabs ref="tabsInstRef" class="h-full overflow-auto" type="line" size="small" animated>
       <n-tab-pane class="h-full p-0! overflow-auto" name="uncompleted" :tab="t('uncompleted_progresses.name')">
         <uncompleted-progresses />
       </n-tab-pane>
