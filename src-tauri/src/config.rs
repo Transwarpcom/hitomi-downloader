@@ -17,6 +17,7 @@ pub struct Config {
     pub proxy_host: String,
     pub proxy_mode: ProxyMode,
     pub proxy_port: u16,
+    pub language: String,
 }
 
 impl Config {
@@ -81,6 +82,7 @@ impl Config {
             proxy_mode: ProxyMode::System,
             proxy_host: "127.0.0.1".to_string(),
             proxy_port: 7890,
+            language: "en-US".to_string(),
         }
     }
 }

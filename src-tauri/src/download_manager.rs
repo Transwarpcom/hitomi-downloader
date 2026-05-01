@@ -761,6 +761,7 @@ pub struct DirFmtParams {
     #[serde(rename = "type")]
     type_field: String,
     artists: String,
+    tags: String,
 }
 
 impl Comic {
@@ -768,13 +769,30 @@ impl Comic {
     fn update_dir_name_fields_by_fmt(&mut self, app: &AppHandle) -> anyhow::Result<()> {
         let comic_title = &self.title;
 
+        let language = app.state::<parking_lot::RwLock<crate::config::Config>>().read().language.clone();
         let fmt_params = DirFmtParams {
             id: self.id,
             title: self.title.clone(),
             language: self.language.clone(),
             language_localname: self.language_localname.clone(),
-            type_field: self.type_field.clone(),
+            type_field: crate::tags::translate_tag(&self.type_field, "type", &language),
             artists: self.artists.join(", "),
+            tags: {
+                let mut joined_tags = self.tags.iter().map(|tag| {
+                    let ns = if tag.female != 0 {
+                        "female"
+                    } else if tag.male != 0 {
+                        "male"
+                    } else {
+                        "tag"
+                    };
+                    crate::tags::translate_tag(&tag.tag, ns, &language)
+                }).collect::<Vec<String>>().join(", ");
+                if joined_tags.chars().count() > 100 {
+                    joined_tags = format!("{}...", joined_tags.chars().take(97).collect::<String>());
+                }
+                joined_tags
+            },
         };
         let comic_download_dir = Comic::get_comic_download_dir_by_fmt(app, &fmt_params).context(
             format!("Failed to get download directory by fmt of `{comic_title}`"),

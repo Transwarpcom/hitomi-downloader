@@ -102,3 +102,4 @@ pub fn run() {
         .run(generate_context())
         .expect("error while running tauri application");
 }
+pub mod tags;

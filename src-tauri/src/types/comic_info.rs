@@ -43,18 +43,28 @@ pub struct ComicInfo {
     pub count: i64,
 }
 
-impl From<Comic> for ComicInfo {
-    fn from(comic: Comic) -> Self {
+impl ComicInfo {
+    pub fn from_comic_with_language(comic: Comic, language: String) -> Self {
+
         ComicInfo {
             manga: "Yes".to_string(),
             series: comic.title,
             writer: comic.artists.join(", "),
             publisher: "Hitomi".to_string(),
-            genre: comic.type_field,
+            genre: crate::tags::translate_tag(&comic.type_field, "type", &language),
             tags: comic
                 .tags
                 .into_iter()
-                .map(|tag| tag.tag)
+                .map(|tag| {
+                    let ns = if tag.female != 0 {
+                        "female"
+                    } else if tag.male != 0 {
+                        "male"
+                    } else {
+                        "tag"
+                    };
+                    crate::tags::translate_tag(&tag.tag, ns, &language)
+                })
                 .collect::<Vec<String>>()
                 .join(", "),
             number: Some("1".to_string()),

@@ -2,12 +2,12 @@
 import { useStore } from '../store.ts'
 import { Comic, commands } from '../bindings.ts'
 import { computed, watch, ref, nextTick } from 'vue'
-import { useI18n } from '../utils.ts'
+import { useI18n, translateTag } from '../utils.ts'
 import DownloadButton from '../components/DownloadButton.vue'
 import { PhArrowClockwise } from '@phosphor-icons/vue'
 import ComicCard from '../components/ComicCard.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 defineProps<{
   search: (query: string, pageNum: number) => Promise<void>
@@ -228,7 +228,7 @@ async function showComicDownloadDirInFileManager() {
             :color="female !== 0 ? '#F472B6' : male !== 0 ? '#60A5FA' : undefined"
             size="tiny"
             @click="search(`${female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag'}:${tag.replace(' ', '_')}`, 1)">
-            {{ tag }}
+            {{ translateTag(tag, female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag', locale) }}
           </n-button>
         </div>
       </div>

@@ -96,6 +96,10 @@ async function showConfigInFileManager() {
               <span class="rounded bg-gray-500 px-1">language_localname</span>
               <span class="ml-2">{{ t('settings_dialog.directory_format.language_localname') }}</span>
             </div>
+            <div>
+              <span class="rounded bg-gray-500 px-1">tags</span>
+              <span class="ml-2">{{ t('common.tag') }}</span>
+            </div>
           </div>
           <div class="font-semibold mt-2">{{ t('settings_dialog.directory_format.for_example') }}</div>
           <div class="bg-gray-200 rounded-md p-1 text-black w-fit">
