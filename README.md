@@ -11,7 +11,7 @@ English / [简体中文](./README.zh-CN.md)
 
 ## 📥 Download
 
-Pre-compiled packages are available on the [Releases page](https://github.com/lanyeeee/hitomi-downloader/releases). Just download and use.
+Pre-compiled packages are available on the [Releases page](https://github.com/Transwarpcom/hitomi-downloader/releases). Just download and use.
 
 **Enjoying this project? feel free to support it with a GitHub Star⭐! Your support motivates me to keep updating and maintaining🙏**
 
@@ -51,7 +51,7 @@ For individually developed projects, this issue is almost unavoidable (~~because
 The only solutions I can think of are:
 
 1.  Compile it yourself according to the **How to Build** instructions below.
-2.  Trust my promise that everything you download from the [Release page](https://github.com/lanyeeee/hitomi-downloader/releases) is safe.
+2.  Trust my promise that everything you download from the [Release page](https://github.com/Transwarpcom/hitomi-downloader/releases) is safe.
 
 ## 🛠️ How to Build
 
@@ -69,7 +69,7 @@ Building is very simple, just 3 commands.
 #### 1. Clone this repository
 
 ```
-git clone https://github.com/lanyeeee/hitomi-downloader.git
+git clone https://github.com/Transwarpcom/hitomi-downloader.git
 ```
 
 #### 2. Install dependencies
@@ -87,7 +87,7 @@ pnpm tauri build
 
 ## 🌐 Adding a New Language
 
-Help with translating this project is welcome! If you want to add a new language, please refer to the implementation in [PR #1](https://github.com/lanyeeee/hitomi-downloader/pull/1). This PR shows how to add the localization files for `en-us`.
+Help with translating this project is welcome! If you want to add a new language, please refer to the implementation in [PR #1](https://github.com/Transwarpcom/hitomi-downloader/pull/1). This PR shows how to add the localization files for `en-us`.
 
 Main steps for adding a new language:
 
@@ -120,6 +120,7 @@ For other cases, feel free to submit a PR directly, for example:
 ## Thanks
 
 [Pupil](https://github.com/tom5079/Pupil)
+[original hitomi-downloader](https://github.com/lanyeeee/hitomi-downloader)
 
 ## 💬 Other
 
