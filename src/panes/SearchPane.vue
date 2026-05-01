@@ -1,12 +1,13 @@
 <script setup lang="tsx">
 import { computed, nextTick, ref, watch } from 'vue'
 import { commands, Suggestion } from '../bindings.ts'
-import { SelectOption, useMessage, useNotification } from 'naive-ui'
+import { DropdownOption, SelectOption, useMessage, useNotification, NIcon } from 'naive-ui'
 import ComicCard from '../components/ComicCard.vue'
 import { useStore } from '../store.ts'
 import { useI18n } from '../utils.ts'
-import { PhMagnifyingGlass, PhArrowRight } from '@phosphor-icons/vue'
+import { PhMagnifyingGlass, PhArrowRight, PhChecks, PhCloudArrowDown } from '@phosphor-icons/vue'
 import FloatLabelInput from '../components/FloatLabelInput.vue'
+import { SelectionArea, SelectionEvent } from '@viselect/vue'
 
 const { t } = useI18n()
 
@@ -225,6 +226,115 @@ function useSuggestion() {
   }
 }
 
+const selectedIds = ref<Set<number>>(new Set())
+const selectionAreaRef = ref<InstanceType<typeof SelectionArea>>()
+const selectableRefs = ref<HTMLDivElement[]>([])
+const { contextMenuX, contextMenuY, contextMenuShowing, contextMenuOptions, showContextMenu } = useContextMenu()
+
+watch(() => store.searchResult, () => {
+  selectedIds.value.clear()
+})
+
+function extractIds(elements: Element[]): number[] {
+  return elements
+    .map((element) => element.getAttribute('data-key'))
+    .filter(Boolean)
+    .map(Number)
+}
+
+function updateSelectedIds({
+  store: {
+    changed: { added, removed },
+  },
+}: SelectionEvent) {
+  extractIds(added).forEach((comicId) => selectedIds.value.add(comicId))
+  extractIds(removed).forEach((comicId) => selectedIds.value.delete(comicId))
+}
+
+function unselectAll({ event, selection }: SelectionEvent) {
+  if (!event?.ctrlKey && !event?.metaKey) {
+    selection.clearSelection()
+    selectedIds.value.clear()
+  }
+}
+
+function onContextMenu(comicId: number) {
+  if (selectedIds.value.has(comicId)) {
+    return
+  }
+  selectedIds.value.clear()
+  selectedIds.value.add(comicId)
+}
+
+function useContextMenu() {
+  const contextMenuX = ref<number>(0)
+  const contextMenuY = ref<number>(0)
+  const contextMenuShowing = ref<boolean>(false)
+  const contextMenuOptions: DropdownOption[] = [
+    {
+      label: t('common.select_all'),
+      key: 'select-all',
+      icon: () => (
+        <n-icon size="20">
+          <PhChecks />
+        </n-icon>
+      ),
+      props: {
+        onClick: () => {
+          if (selectionAreaRef.value === undefined) {
+            return
+          }
+          const selection = selectionAreaRef.value.selection
+          if (selection === undefined) {
+            return
+          }
+          selection.select(selectableRefs.value)
+          contextMenuShowing.value = false
+        },
+      },
+    },
+    {
+      label: t('download_button.quick_download'),
+      key: 'download',
+      icon: () => (
+        <n-icon size="20">
+          <PhCloudArrowDown />
+        </n-icon>
+      ),
+      props: {
+        onClick: () => {
+          selectedIds.value.forEach(async (comicId) => {
+            const result = await commands.getComic(comicId)
+            if (result.status === 'error') {
+              console.error(result.error)
+              return
+            }
+            const comic = result.data
+            await commands.createDownloadTask(comic)
+          })
+          contextMenuShowing.value = false
+        },
+      },
+    },
+  ]
+
+  async function showContextMenu(e: MouseEvent) {
+    contextMenuShowing.value = false
+    await nextTick()
+    contextMenuShowing.value = true
+    contextMenuX.value = e.clientX
+    contextMenuY.value = e.clientY
+  }
+
+  return {
+    contextMenuX,
+    contextMenuY,
+    contextMenuShowing,
+    contextMenuOptions,
+    showContextMenu,
+  }
+}
+
 defineExpose({ search })
 </script>
 
@@ -274,16 +384,34 @@ defineExpose({ search })
       </n-button>
     </n-input-group>
 
-    <div
+    <SelectionArea
       v-if="store.searchResult !== undefined"
-      ref="comicCardContainerRef"
-      class="flex flex-col gap-row-2 overflow-auto box-border px-2">
-      <comic-card
+      ref="selectionAreaRef"
+      class="flex flex-col gap-row-2 overflow-auto box-border px-2 selection-container"
+      :options="{ selectables: '.selectable', features: { deselectOnBlur: true } }"
+      @contextmenu="showContextMenu"
+      @move="updateSelectedIds"
+      @start="unselectAll">
+      <div
         v-for="(comic, index) in store.searchResult.comics"
         :key="comic.id"
-        :search="search"
-        v-model:comic="store.searchResult.comics[index]" />
-    </div>
+        ref="selectableRefs"
+        :data-key="comic.id"
+        :class="['selectable rounded p-[2px]', selectedIds.has(comic.id) ? 'selected' : '']"
+        @contextmenu="() => onContextMenu(comic.id)">
+        <comic-card
+          :search="search"
+          v-model:comic="store.searchResult.comics[index]" />
+      </div>
+      <n-dropdown
+        placement="bottom-start"
+        trigger="manual"
+        :x="contextMenuX"
+        :y="contextMenuY"
+        :options="contextMenuOptions"
+        :show="contextMenuShowing"
+        :on-clickoutside="() => (contextMenuShowing = false)" />
+    </SelectionArea>
 
     <n-pagination
       v-if="store.searchResult !== undefined"
@@ -293,3 +421,13 @@ defineExpose({ search })
       @update:page="handlePageChange" />
   </div>
 </template>
+
+<style scoped>
+.selection-container .selected {
+  @apply bg-[rgb(204,232,255)];
+}
+
+:global(.selection-area) {
+  @apply bg-[rgba(46,115,252,0.5)];
+}
+</style>
