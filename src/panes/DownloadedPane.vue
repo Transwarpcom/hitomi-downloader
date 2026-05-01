@@ -7,7 +7,8 @@ import { useStore } from '../store.ts'
 import DownloadedComicCard from '../components/DownloadedComicCard.vue'
 import { useI18n } from '../utils.ts'
 import { PhFolderOpen, PhChecks, PhFilePdf, PhFileZip } from '@phosphor-icons/vue'
-import { SelectionArea, SelectionEvent } from '@viselect/vue'
+import { SelectionArea } from '@viselect/vue'
+import { useMultiSelect } from '../composables/useMultiSelect.ts'
 
 const { t } = useI18n()
 
@@ -160,9 +161,7 @@ async function showExportDirInFileManager() {
   }
 }
 
-const selectedIds = ref<Set<number>>(new Set())
-const selectionAreaRef = ref<InstanceType<typeof SelectionArea>>()
-const selectableRefs = ref<HTMLDivElement[]>([])
+const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu } = useMultiSelect()
 const { contextMenuX, contextMenuY, contextMenuShowing, contextMenuOptions, showContextMenu } = useContextMenu()
 
 watch(currentPageComics, () => {
@@ -171,36 +170,6 @@ watch(currentPageComics, () => {
   selectedIds.value = new Set([...selectedIds.value].filter((comicId) => downloadedIds.has(comicId)))
 })
 
-function extractIds(elements: Element[]): number[] {
-  return elements
-    .map((element) => element.getAttribute('data-key'))
-    .filter(Boolean)
-    .map(Number)
-}
-
-function updateSelectedIds({
-  store: {
-    changed: { added, removed },
-  },
-}: SelectionEvent) {
-  extractIds(added).forEach((comicId) => selectedIds.value.add(comicId))
-  extractIds(removed).forEach((comicId) => selectedIds.value.delete(comicId))
-}
-
-function unselectAll({ event, selection }: SelectionEvent) {
-  if (!event?.ctrlKey && !event?.metaKey) {
-    selection.clearSelection()
-    selectedIds.value.clear()
-  }
-}
-
-function onContextMenu(comicId: number) {
-  if (selectedIds.value.has(comicId)) {
-    return
-  }
-  selectedIds.value.clear()
-  selectedIds.value.add(comicId)
-}
 
 function useContextMenu() {
   const contextMenuX = ref<number>(0)
@@ -239,15 +208,14 @@ function useContextMenu() {
       ),
       props: {
         onClick: () => {
-          selectedIds.value.forEach(async (comicId) => {
-            const comic = downloadedComics.value.find(c => c.id === comicId)
-            if (comic) {
+          currentPageComics.value
+            .filter((comic) => selectedIds.value.has(comic.id))
+            .forEach(async (comic) => {
               const result = await commands.exportPdf(comic)
               if (result.status === 'error') {
                 console.error(result.error)
               }
-            }
-          })
+            })
           contextMenuShowing.value = false
         },
       },
@@ -262,15 +230,14 @@ function useContextMenu() {
       ),
       props: {
         onClick: () => {
-          selectedIds.value.forEach(async (comicId) => {
-            const comic = downloadedComics.value.find(c => c.id === comicId)
-            if (comic) {
+          currentPageComics.value
+            .filter((comic) => selectedIds.value.has(comic.id))
+            .forEach(async (comic) => {
               const result = await commands.exportCbz(comic)
               if (result.status === 'error') {
                 console.error(result.error)
               }
-            }
-          })
+            })
           contextMenuShowing.value = false
         },
       },
@@ -346,13 +313,3 @@ function useContextMenu() {
       @update:page="currentPage = $event" />
   </div>
 </template>
-
-<style scoped>
-.selection-container .selected {
-  @apply bg-[rgb(204,232,255)];
-}
-
-:global(.selection-area) {
-  @apply bg-[rgba(46,115,252,0.5)];
-}
-</style>

@@ -7,7 +7,9 @@ import { useStore } from '../store.ts'
 import { useI18n } from '../utils.ts'
 import { PhMagnifyingGlass, PhArrowRight, PhChecks, PhCloudArrowDown } from '@phosphor-icons/vue'
 import FloatLabelInput from '../components/FloatLabelInput.vue'
-import { SelectionArea, SelectionEvent } from '@viselect/vue'
+import { SelectionArea } from '@viselect/vue'
+import { useMultiSelect } from '../composables/useMultiSelect.ts'
+
 
 const { t } = useI18n()
 
@@ -226,45 +228,14 @@ function useSuggestion() {
   }
 }
 
-const selectedIds = ref<Set<number>>(new Set())
-const selectionAreaRef = ref<InstanceType<typeof SelectionArea>>()
-const selectableRefs = ref<HTMLDivElement[]>([])
+const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu } = useMultiSelect()
 const { contextMenuX, contextMenuY, contextMenuShowing, contextMenuOptions, showContextMenu } = useContextMenu()
 
 watch(() => store.searchResult, () => {
   selectedIds.value.clear()
 })
 
-function extractIds(elements: Element[]): number[] {
-  return elements
-    .map((element) => element.getAttribute('data-key'))
-    .filter(Boolean)
-    .map(Number)
-}
 
-function updateSelectedIds({
-  store: {
-    changed: { added, removed },
-  },
-}: SelectionEvent) {
-  extractIds(added).forEach((comicId) => selectedIds.value.add(comicId))
-  extractIds(removed).forEach((comicId) => selectedIds.value.delete(comicId))
-}
-
-function unselectAll({ event, selection }: SelectionEvent) {
-  if (!event?.ctrlKey && !event?.metaKey) {
-    selection.clearSelection()
-    selectedIds.value.clear()
-  }
-}
-
-function onContextMenu(comicId: number) {
-  if (selectedIds.value.has(comicId)) {
-    return
-  }
-  selectedIds.value.clear()
-  selectedIds.value.add(comicId)
-}
 
 function useContextMenu() {
   const contextMenuX = ref<number>(0)
@@ -303,15 +274,14 @@ function useContextMenu() {
       ),
       props: {
         onClick: () => {
-          selectedIds.value.forEach(async (comicId) => {
-            const result = await commands.getComic(comicId)
-            if (result.status === 'error') {
-              console.error(result.error)
-              return
-            }
-            const comic = result.data
-            await commands.createDownloadTask(comic)
-          })
+          ;(store.searchResult?.comics ?? [])
+            .filter((comic) => selectedIds.value.has(comic.id))
+            .forEach(async (comic) => {
+              const result = await commands.createDownloadTask(comic)
+              if (result.status === 'error') {
+                console.error(result.error)
+              }
+            })
           contextMenuShowing.value = false
         },
       },
@@ -421,13 +391,3 @@ defineExpose({ search })
       @update:page="handlePageChange" />
   </div>
 </template>
-
-<style scoped>
-.selection-container .selected {
-  @apply bg-[rgb(204,232,255)];
-}
-
-:global(.selection-area) {
-  @apply bg-[rgba(46,115,252,0.5)];
-}
-</style>

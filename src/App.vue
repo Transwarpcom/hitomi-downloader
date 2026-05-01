@@ -25,3 +25,12 @@ const themeOverrides: GlobalThemeOverrides = {
     </n-modal-provider>
   </n-config-provider>
 </template>
+<style>
+.selection-container .selected {
+  @apply bg-[rgb(204,232,255)];
+}
+
+.selection-area {
+  @apply bg-[rgba(46,115,252,0.5)];
+}
+</style>

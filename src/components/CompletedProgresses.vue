@@ -3,7 +3,8 @@ import { ProgressData } from '../types.ts'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from '../store.ts'
 import DownloadedComicCard from './DownloadedComicCard.vue'
-import { SelectionArea, SelectionEvent } from '@viselect/vue'
+import { SelectionArea } from '@viselect/vue'
+import { useMultiSelect } from '../composables/useMultiSelect.ts'
 import { DropdownOption } from 'naive-ui'
 import { commands } from '../bindings.ts'
 import { PhChecks, PhArrowClockwise } from '@phosphor-icons/vue'
@@ -24,9 +25,8 @@ const completedProgresses = computed<[number, ProgressData][]>(() =>
     }),
 )
 
-const selectedIds = ref<Set<number>>(new Set())
-const selectionAreaRef = ref<InstanceType<typeof SelectionArea>>()
-const selectableRefs = ref<HTMLDivElement[]>([])
+
+const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu } = useMultiSelect()
 const { dropdownX, dropdownY, dropdownShowing, dropdownOptions, showDropdown } = useDropdown()
 
 watch(completedProgresses, () => {
@@ -35,36 +35,6 @@ watch(completedProgresses, () => {
   selectedIds.value = new Set([...selectedIds.value].filter((comicId) => completedIds.has(comicId)))
 })
 
-function extractIds(elements: Element[]): number[] {
-  return elements
-    .map((element) => element.getAttribute('data-key'))
-    .filter(Boolean)
-    .map(Number)
-}
-
-function updateSelectedIds({
-  store: {
-    changed: { added, removed },
-  },
-}: SelectionEvent) {
-  extractIds(added).forEach((comicId) => selectedIds.value.add(comicId))
-  extractIds(removed).forEach((comicId) => selectedIds.value.delete(comicId))
-}
-
-function unselectAll({ event, selection }: SelectionEvent) {
-  if (!event?.ctrlKey && !event?.metaKey) {
-    selection.clearSelection()
-    selectedIds.value.clear()
-  }
-}
-
-function onContextMenu(comicId: number) {
-  if (selectedIds.value.has(comicId)) {
-    return
-  }
-  selectedIds.value.clear()
-  selectedIds.value.add(comicId)
-}
 
 function useDropdown() {
   const dropdownX = ref<number>(0)
@@ -103,15 +73,14 @@ function useDropdown() {
       ),
       props: {
         onClick: () => {
-          selectedIds.value.forEach(async (comicId) => {
-            const result = await commands.getComic(comicId)
-            if (result.status === 'error') {
-              console.error(result.error)
-              return
-            }
-            const comic = result.data
-            await commands.createDownloadTask(comic)
-          })
+          completedProgresses.value
+            .filter(([id]) => selectedIds.value.has(id))
+            .forEach(async ([, progressData]) => {
+              const result = await commands.createDownloadTask(progressData.comic)
+              if (result.status === 'error') {
+                console.error(result.error)
+              }
+            })
           dropdownShowing.value = false
         },
       },
@@ -163,13 +132,3 @@ function useDropdown() {
       :on-clickoutside="() => (dropdownShowing = false)" />
   </SelectionArea>
 </template>
-
-<style scoped>
-.selection-container .selected {
-  @apply bg-[rgb(204,232,255)];
-}
-
-:global(.selection-area) {
-  @apply bg-[rgba(46,115,252,0.5)];
-}
-</style>

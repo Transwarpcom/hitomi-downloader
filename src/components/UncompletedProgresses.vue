@@ -1,7 +1,8 @@
 <script setup lang="tsx">
 import { ProgressData } from '../types.ts'
 import { ref, watch, computed, nextTick } from 'vue'
-import { SelectionArea, SelectionEvent } from '@viselect/vue'
+import { SelectionArea } from '@viselect/vue'
+import { useMultiSelect } from '../composables/useMultiSelect.ts'
 import { commands, DownloadTaskState } from '../bindings.ts'
 import { DropdownOption, NIcon } from 'naive-ui'
 import { useStore } from '../store.ts'
@@ -22,9 +23,7 @@ const { t } = useI18n()
 
 const store = useStore()
 
-const selectedIds = ref<Set<number>>(new Set())
-const selectionAreaRef = ref<InstanceType<typeof SelectionArea>>()
-const selectableRefs = ref<HTMLDivElement[]>([])
+const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu } = useMultiSelect()
 const { dropdownX, dropdownY, dropdownShowing, dropdownOptions, showDropdown } = useDropdown()
 
 const uncompletedProgresses = computed<[number, ProgressData][]>(() =>
@@ -38,30 +37,6 @@ watch(uncompletedProgresses, () => {
   // only retain selected ids that are uncompleted
   selectedIds.value = new Set([...selectedIds.value].filter((comicId) => uncompletedIds.has(comicId)))
 })
-
-function extractIds(elements: Element[]): number[] {
-  return elements
-    .map((element) => element.getAttribute('data-key'))
-    .filter(Boolean)
-    .map(Number)
-}
-
-function updateSelectedIds({
-  store: {
-    changed: { added, removed },
-  },
-}: SelectionEvent) {
-  extractIds(added).forEach((comicId) => selectedIds.value.add(comicId))
-  extractIds(removed).forEach((comicId) => selectedIds.value.delete(comicId))
-}
-
-function unselectAll({ event, selection }: SelectionEvent) {
-  if (!event?.ctrlKey && !event?.metaKey) {
-    selection.clearSelection()
-    selectedIds.value.clear()
-  }
-}
-
 async function onProgressDoubleClick(state: DownloadTaskState, comicId: number) {
   if (state === 'Downloading' || state === 'Pending') {
     const result = await commands.pauseDownloadTask(comicId)
@@ -76,13 +51,7 @@ async function onProgressDoubleClick(state: DownloadTaskState, comicId: number) 
   }
 }
 
-function onProgressContextMenu(comicId: number) {
-  if (selectedIds.value.has(comicId)) {
-    return
-  }
-  selectedIds.value.clear()
-  selectedIds.value.add(comicId)
-}
+
 
 function useDropdown() {
   const dropdownX = ref<number>(0)
@@ -241,7 +210,7 @@ function stateToColorClass(state: DownloadTaskState) {
           selectedIds.has(comicId) ? 'selected shadow-md' : 'hover:bg-gray-1',
         ]"
         @dblclick="() => onProgressDoubleClick(state, comicId)"
-        @contextmenu="() => onProgressContextMenu(comicId)">
+        @contextmenu="() => onContextMenu(comicId)">
         <div class="flex items-center" :title="comic.title">
           <div class="text-ellipsis whitespace-nowrap overflow-hidden">{{ comic.title }}</div>
         </div>
@@ -273,16 +242,4 @@ function stateToColorClass(state: DownloadTaskState) {
   </SelectionArea>
 </template>
 
-<style scoped>
-.selection-container {
-  @apply select-none overflow-auto;
-}
 
-.selection-container .selected {
-  @apply bg-[rgb(204,232,255)];
-}
-
-:global(.selection-area) {
-  @apply bg-[rgba(46,115,252,0.5)];
-}
-</style>
