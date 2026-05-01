@@ -5,7 +5,7 @@ import { useStore } from '../store.ts'
 import { useI18n, translateTag } from '../utils.ts'
 import { PhArrowClockwise } from '@phosphor-icons/vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const props = defineProps<{
   comic: Comic
@@ -124,7 +124,7 @@ async function showComicDownloadDirInFileManager() {
             :key="index"
             size="tiny"
             @click="search(`${female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag'}:${tag.replace(' ', '_')}`, 1)">
-            {{ translateTag(tag, female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag') }}
+            {{ translateTag(tag, female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag', locale) }}
           </n-button>
         </div>
         <div class="flex items-center gap-col-1">

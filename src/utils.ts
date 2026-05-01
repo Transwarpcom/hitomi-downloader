@@ -6,9 +6,8 @@ export function useI18n() {
   return i18n.useI18n<{ message: MessageSchema }, SupportedLocales>()
 }
 
-export function translateTag(tag: string, ns: string): string {
-  const { locale } = useI18n()
-  if (locale.value === 'zh-CN') {
+export function translateTag(tag: string, ns: string, currentLocale: string): string {
+  if (currentLocale === 'zh-CN') {
     const key = `${ns}:${tag.replace(/ /g, '_')}`
     const translations = zhCNTags as Record<string, string>
     return translations[key] || tag

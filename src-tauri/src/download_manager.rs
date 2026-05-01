@@ -777,16 +777,22 @@ impl Comic {
             language_localname: self.language_localname.clone(),
             type_field: crate::tags::translate_tag(&self.type_field, "type", &language),
             artists: self.artists.join(", "),
-            tags: self.tags.iter().map(|tag| {
-                let ns = if tag.female != 0 {
-                    "female"
-                } else if tag.male != 0 {
-                    "male"
-                } else {
-                    "tag"
-                };
-                crate::tags::translate_tag(&tag.tag, ns, &language)
-            }).collect::<Vec<String>>().join(", "),
+            tags: {
+                let mut joined_tags = self.tags.iter().map(|tag| {
+                    let ns = if tag.female != 0 {
+                        "female"
+                    } else if tag.male != 0 {
+                        "male"
+                    } else {
+                        "tag"
+                    };
+                    crate::tags::translate_tag(&tag.tag, ns, &language)
+                }).collect::<Vec<String>>().join(", ");
+                if joined_tags.chars().count() > 100 {
+                    joined_tags = format!("{}...", joined_tags.chars().take(97).collect::<String>());
+                }
+                joined_tags
+            },
         };
         let comic_download_dir = Comic::get_comic_download_dir_by_fmt(app, &fmt_params).context(
             format!("Failed to get download directory by fmt of `{comic_title}`"),
