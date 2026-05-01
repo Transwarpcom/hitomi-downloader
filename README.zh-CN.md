@@ -11,7 +11,7 @@
 
 ## 📥 快速下载
 
-[Release页面](https://github.com/lanyeeee/hitomi-downloader/releases)提供了预编译的安装包，直接下载即可使用
+[Release页面](https://github.com/Transwarpcom/hitomi-downloader/releases)提供了预编译的安装包，直接下载即可使用
 
 **如果本项目对你有帮助，欢迎点个 Star ⭐ 支持！你的支持是我持续更新维护的动力 🙏**
 
@@ -50,7 +50,7 @@ https://github.com/user-attachments/assets/d2d0e577-c074-41ca-996f-445d52e2cce5
 我能想到的解决办法只有：
 
 1. 根据下面的**如何构建(build)**，自行编译
-2. 希望你相信我的承诺，我承诺你在[Release页面](https://github.com/lanyeeee/hitomi-downloader/releases)下载到的所有东西都是安全的
+2. 希望你相信我的承诺，我承诺你在[Release页面](https://github.com/Transwarpcom/hitomi-downloader/releases)下载到的所有东西都是安全的
 
 ## 🛠️如何构建(build)
 
@@ -68,7 +68,7 @@ https://github.com/user-attachments/assets/d2d0e577-c074-41ca-996f-445d52e2cce5
 #### 1. 克隆本仓库
 
 ```
-git clone https://github.com/lanyeeee/hitomi-downloader.git
+git clone https://github.com/Transwarpcom/hitomi-downloader.git
 ```
 
 #### 2.安装依赖
@@ -86,7 +86,7 @@ pnpm tauri build
 
 ## 🌐 添加新语言
 
-欢迎帮助翻译本项目！如果您想要为项目添加新语言，请参考 [PR #1](https://github.com/lanyeeee/hitomi-downloader/pull/1) 的实现方式。这个PR展示了如何添加`英语(美国)`的本地化文件
+欢迎帮助翻译本项目！如果您想要为项目添加新语言，请参考 [PR #1](https://github.com/Transwarpcom/hitomi-downloader/pull/1) 的实现方式。这个PR展示了如何添加`英语(美国)`的本地化文件
 
 添加新语言的主要步骤：
 
@@ -119,6 +119,7 @@ pnpm tauri build
 ## 感谢
 
 [Pupil](https://github.com/tom5079/Pupil)
+[原始项目 hitomi-downloader](https://github.com/lanyeeee/hitomi-downloader)
 
 ## 💬其他
 
