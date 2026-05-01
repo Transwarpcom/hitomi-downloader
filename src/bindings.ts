@@ -133,6 +133,14 @@ export const commands = {
       else return { status: 'error', error: e as any }
     }
   },
+  async getImageData(comic: Comic, file: GalleryFiles): Promise<Result<number[], CommandError>> {
+    try {
+      return { status: 'ok', data: await TAURI_INVOKE('get_image_data', { comic, file }) }
+    } catch (e) {
+      if (e instanceof Error) throw e
+      else return { status: 'error', error: e as any }
+    }
+  },
 }
 
 /** user-defined events **/
