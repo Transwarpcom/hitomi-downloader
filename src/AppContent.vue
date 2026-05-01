@@ -30,7 +30,16 @@ const localeOptions = Object.entries(locales).map(([key, value]) => ({
 
 const searchPaneRef = ref<InstanceType<typeof SearchPane>>()
 const tabsInstRef = ref<TabsInst | null>(null)
-watch(locale, () => tabsInstRef.value?.syncBarPosition(), { flush: 'post' })
+watch(locale, async () => {
+  tabsInstRef.value?.syncBarPosition()
+  if (store.config !== undefined) {
+    store.config.language = locale.value
+    const result = await commands.saveConfig(store.config)
+    if (result.status === 'error') {
+      console.error(result.error)
+    }
+  }
+}, { flush: 'post' })
 
 watch(
   () => store.config,

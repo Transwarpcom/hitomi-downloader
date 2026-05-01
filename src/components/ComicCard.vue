@@ -2,7 +2,7 @@
 import { computed, onMounted } from 'vue'
 import { Comic, commands } from '../bindings.ts'
 import { useStore } from '../store.ts'
-import { useI18n } from '../utils.ts'
+import { useI18n, translateTag } from '../utils.ts'
 import DownloadButton from './DownloadButton.vue'
 import { PhArrowClockwise } from '@phosphor-icons/vue'
 
@@ -110,7 +110,7 @@ async function showComicDownloadDirInFileManager() {
             :key="index"
             size="tiny"
             @click="search(`${female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag'}:${tag.replace(' ', '_')}`, 1)">
-            {{ tag }}
+            {{ translateTag(tag, female !== 0 ? 'female' : male !== 0 ? 'male' : 'tag') }}
           </n-button>
         </div>
         <div class="flex items-center gap-col-1">
