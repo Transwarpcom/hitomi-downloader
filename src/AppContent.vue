@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { onMounted, ref, watch, nextTick } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import type { TabsInst } from 'naive-ui'
 import { useMessage, useNotification } from 'naive-ui'
 import { commands } from './bindings.ts'
@@ -30,9 +30,7 @@ const localeOptions = Object.entries(locales).map(([key, value]) => ({
 
 const searchPaneRef = ref<InstanceType<typeof SearchPane>>()
 const tabsInstRef = ref<TabsInst | null>(null)
-watch(locale, () => {
-  nextTick(() => tabsInstRef.value?.syncBarPosition())
-})
+watch(locale, () => tabsInstRef.value?.syncBarPosition(), { flush: 'post' })
 
 watch(
   () => store.config,

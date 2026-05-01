@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, nextTick } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import type { TabsInst } from 'naive-ui'
 import { events, commands } from '../bindings.ts'
 import { open } from '@tauri-apps/plugin-dialog'
@@ -13,9 +13,7 @@ import { ProgressData } from '../types.ts'
 
 const { t, locale } = useI18n()
 const tabsInstRef = ref<TabsInst | null>(null)
-watch(locale, () => {
-  nextTick(() => tabsInstRef.value?.syncBarPosition())
-})
+watch(locale, () => tabsInstRef.value?.syncBarPosition(), { flush: 'post' })
 
 const store = useStore()
 
