@@ -66,8 +66,10 @@ async function showComicDownloadDirInFileManager() {
       <div class="flex flex-col w-full overflow-hidden gap-row-1">
         <div
           class="font-bold text-xl line-clamp-2 cursor-pointer transition-colors duration-200 hover:text-blue-5"
-          v-html="comic.title"
-          @click="pickComic" />
+          :title="comic.title"
+          @click="pickComic">
+          {{ comic.title }}
+        </div>
         <div class="flex items-center gap-col-1">
           <div class="whitespace-nowrap">{{ t('common.artist') }}</div>
           <n-button

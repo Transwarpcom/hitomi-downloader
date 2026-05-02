@@ -294,7 +294,7 @@ function useContextMenu() {
         :class="['selectable rounded p-[2px] relative', selectedIds.has(comic.id) ? 'selected' : '']"
         @contextmenu="() => onContextMenu(comic.id)">
         <downloaded-comic-card :search="search" :comic="comic" />
-        <div class="absolute top-2 left-2 z-10 bg-white/50 rounded flex items-center justify-center p-1">
+        <div class="absolute top-2 left-2 z-10 bg-white/50 rounded flex items-center justify-center p-1" @mousedown.stop @touchstart.stop @pointerdown.stop @click.stop>
           <n-checkbox
             size="large"
             :checked="selectedIds.has(comic.id)"

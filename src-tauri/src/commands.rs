@@ -15,10 +15,10 @@ use crate::{
     export,
     extensions::AnyhowErrorToStringChain,
     hitomi::Suggestion,
+    hitomi::{image_url_from_image, Ext, GalleryFiles},
     hitomi_client::HitomiClient,
     logger,
     types::{Comic, SearchResult},
-    hitomi::{GalleryFiles, image_url_from_image, Ext},
 };
 
 #[tauri::command]
@@ -442,12 +442,14 @@ pub async fn get_image_data(
     }
 
     // Fallback to network
-    let mut url = image_url_from_image(comic_id, &file, Ext::Avif).await
+    let mut url = image_url_from_image(comic_id, &file, Ext::Avif)
+        .await
         .map_err(|err| CommandError::from("Failed to get avif url", err))?;
 
     let mut result = hitomi_client.get_img_data(&url).await;
     if result.is_err() {
-        url = image_url_from_image(comic_id, &file, Ext::Webp).await
+        url = image_url_from_image(comic_id, &file, Ext::Webp)
+            .await
             .map_err(|err| CommandError::from("Failed to get webp url", err))?;
         result = hitomi_client.get_img_data(&url).await;
     }

@@ -288,6 +288,19 @@ pub struct Tag {
     pub male: i32,
 }
 
+impl Tag {
+    pub fn format_tag(&self, language: &str) -> String {
+        let ns = if self.female != 0 {
+            "female"
+        } else if self.male != 0 {
+            "male"
+        } else {
+            "tag"
+        };
+        crate::tags::translate_tag(&self.tag, ns, language)
+    }
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Type)]
 #[allow(clippy::struct_field_names)]
 pub struct Language {

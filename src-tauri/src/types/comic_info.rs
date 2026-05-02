@@ -45,7 +45,6 @@ pub struct ComicInfo {
 
 impl ComicInfo {
     pub fn from_comic_with_language(comic: Comic, language: String) -> Self {
-
         ComicInfo {
             manga: "Yes".to_string(),
             series: comic.title,
@@ -55,16 +54,7 @@ impl ComicInfo {
             tags: comic
                 .tags
                 .into_iter()
-                .map(|tag| {
-                    let ns = if tag.female != 0 {
-                        "female"
-                    } else if tag.male != 0 {
-                        "male"
-                    } else {
-                        "tag"
-                    };
-                    crate::tags::translate_tag(&tag.tag, ns, &language)
-                })
+                .map(|tag| tag.format_tag(&language))
                 .collect::<Vec<String>>()
                 .join(", "),
             number: Some("1".to_string()),

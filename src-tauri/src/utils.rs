@@ -16,7 +16,7 @@ pub fn filename_filter(s: &str) -> String {
         })
         .collect::<String>()
         .trim()
-.chars()
+        .chars()
         .take(250)
         .collect::<String>()
         .trim_end_matches(|c: char| c == '.' || c.is_whitespace())
