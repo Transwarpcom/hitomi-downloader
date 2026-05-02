@@ -1,5 +1,5 @@
 import * as i18n from 'vue-i18n'
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import { MessageSchema, SupportedLocales } from './main.ts'
 
 export function useI18n() {
@@ -7,7 +7,7 @@ export function useI18n() {
 }
 
 // Lazy load the large zh-CN tag dictionary (1.7MB+) to reduce initial bundle size
-const zhCNTags = ref<Record<string, string> | null>(null)
+const zhCNTags = shallowRef<Record<string, string> | null>(null)
 let isLoadingZhCNTags = false
 
 export function translateTag(tag: string, ns: string, currentLocale: string): string {
