@@ -785,16 +785,7 @@ impl Comic {
                 let mut joined_tags = self
                     .tags
                     .iter()
-                    .map(|tag| {
-                        let ns = if tag.female != 0 {
-                            "female"
-                        } else if tag.male != 0 {
-                            "male"
-                        } else {
-                            "tag"
-                        };
-                        crate::tags::translate_tag(&tag.tag, ns, &language)
-                    })
+                    .map(|tag| tag.format_tag(&language))
                     .collect::<Vec<String>>()
                     .join(", ");
                 if joined_tags.chars().count() > 100 {
