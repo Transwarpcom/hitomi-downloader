@@ -131,7 +131,7 @@ async function showComicDownloadDirInFileManager() {
             {{ t('common.open_directory') }}
           </n-button>
           <n-button size="small" type="info" @click="store.currentTabName = 'reader'">
-            Read
+            {{ t('comic_pane.read') }}
           </n-button>
           <download-button
             class="mt-auto"

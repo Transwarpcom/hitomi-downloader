@@ -13,7 +13,7 @@ async function loadCurrentImage() {
 
   loading.value = true
   const file = store.pickedComic.files[currentIndex.value]
-  const result = await commands.getImageData(store.pickedComic, file)
+  const result = await commands.getImageData(store.pickedComic.id, store.pickedComic.isDownloaded ?? null, store.pickedComic.comicDownloadDir ?? null, file)
 
   if (result.status === 'ok') {
     const data = new Uint8Array(result.data)

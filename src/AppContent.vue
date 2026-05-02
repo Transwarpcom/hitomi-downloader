@@ -110,7 +110,7 @@ onMounted(async () => {
         <n-tab-pane class="h-full overflow-auto p-0!" name="comic" :tab="t('comic_pane.name')" display-directive="show">
           <comic-pane v-if="searchPaneRef !== undefined" :search="searchPaneRef.search" />
         </n-tab-pane>
-        <n-tab-pane class="h-full overflow-hidden p-0!" name="reader" tab="Reader" display-directive="show">
+        <n-tab-pane class="h-full overflow-hidden p-0!" name="reader" :tab="t('reader_pane.name')" display-directive="show">
           <reader-pane />
         </n-tab-pane>
       </n-tabs>

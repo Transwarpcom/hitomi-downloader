@@ -90,7 +90,11 @@
     "name": "Comic",
     "other_language": "Other Languages",
     "empty_description": "Please select a comic (@:search_pane.name @:downloaded_pane.name)",
-    "related": "Related Comics"
+    "related": "Related Comics",
+    "read": "Read"
+  },
+  "reader_pane": {
+    "name": "Reader"
   },
   "downloading_pane": {
     "name": "Downloads",

@@ -228,7 +228,7 @@ function useSuggestion() {
   }
 }
 
-const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu } = useMultiSelect()
+const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu, toggleSelection } = useMultiSelect()
 const { contextMenuX, contextMenuY, contextMenuShowing, contextMenuOptions, showContextMenu } = useContextMenu()
 
 watch(() => store.searchResult, () => {
@@ -376,7 +376,7 @@ defineExpose({ search })
           <n-checkbox
             size="large"
             :checked="selectedIds.has(comic.id)"
-            @update:checked="(checked: boolean) => checked ? selectedIds.add(comic.id) : selectedIds.delete(comic.id)"
+            @update:checked="(checked: boolean) => toggleSelection(comic.id, checked)"
           />
         </div>
       </div>

@@ -414,12 +414,14 @@ pub fn get_synced_comic(app: AppHandle, mut comic: Comic) -> CommandResult<Comic
 pub async fn get_image_data(
     _app: AppHandle,
     hitomi_client: State<'_, HitomiClient>,
-    comic: Comic,
+    comic_id: i32,
+    is_downloaded: Option<bool>,
+    comic_download_dir: Option<String>,
     file: GalleryFiles,
 ) -> CommandResult<Vec<u8>> {
     // First try local if downloaded
-    if let Some(true) = comic.is_downloaded {
-        if let Some(ref download_dir) = comic.comic_download_dir {
+    if let Some(true) = is_downloaded {
+        if let Some(ref download_dir) = comic_download_dir {
             let dir = PathBuf::from(download_dir);
 
             // Check webp then avif (or other extensions) based on how Hitomi saves
@@ -440,12 +442,12 @@ pub async fn get_image_data(
     }
 
     // Fallback to network
-    let mut url = image_url_from_image(comic.id, &file, Ext::Avif).await
+    let mut url = image_url_from_image(comic_id, &file, Ext::Avif).await
         .map_err(|err| CommandError::from("Failed to get avif url", err))?;
 
     let mut result = hitomi_client.get_img_data(&url).await;
     if result.is_err() {
-        url = image_url_from_image(comic.id, &file, Ext::Webp).await
+        url = image_url_from_image(comic_id, &file, Ext::Webp).await
             .map_err(|err| CommandError::from("Failed to get webp url", err))?;
         result = hitomi_client.get_img_data(&url).await;
     }

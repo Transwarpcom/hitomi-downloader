@@ -37,6 +37,16 @@ export function useMultiSelect() {
     selectedIds.value.add(id)
   }
 
+  function toggleSelection(id: number, checked: boolean) {
+    const newSelectedIds = new Set(selectedIds.value)
+    if (checked) {
+      newSelectedIds.add(id)
+    } else {
+      newSelectedIds.delete(id)
+    }
+    selectedIds.value = newSelectedIds
+  }
+
   return {
     selectedIds,
     selectionAreaRef,
@@ -44,5 +54,6 @@ export function useMultiSelect() {
     updateSelectedIds,
     unselectAll,
     onContextMenu,
+    toggleSelection,
   }
 }
