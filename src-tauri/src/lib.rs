@@ -27,7 +27,7 @@ fn generate_context() -> tauri::Context<Wry> {
     tauri::generate_context!()
 }
 
-// 定义 Tauri 应用程序的入口函数
+/// 定义 Tauri 应用程序的入口函数
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // 初始化 tauri_specta，用于前后端类型安全的通信
