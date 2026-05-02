@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-
 pub fn translate_tag(tag: &str, ns: &str, lang: &str) -> String {
     if lang == "zh-CN" {
-        static ZH_CN_TAGS: std::sync::OnceLock<HashMap<String, String>> = std::sync::OnceLock::new();
+        static ZH_CN_TAGS: std::sync::OnceLock<HashMap<String, String>> =
+            std::sync::OnceLock::new();
 
         let tags_map = ZH_CN_TAGS.get_or_init(|| {
             let json_str = include_str!("tags_zh_cn.json");

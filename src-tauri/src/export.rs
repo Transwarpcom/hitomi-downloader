@@ -84,7 +84,11 @@ pub fn cbz(app: &AppHandle, comic: &Comic) -> anyhow::Result<()> {
         .context("Failed to get comic export directory")?;
     // Generate ComicInfo
     use tauri::Manager;
-    let language = app.state::<parking_lot::RwLock<crate::config::Config>>().read().language.clone();
+    let language = app
+        .state::<parking_lot::RwLock<crate::config::Config>>()
+        .read()
+        .language
+        .clone();
     let comic_info = ComicInfo::from_comic_with_language(comic.clone(), language);
     // Serialize ComicInfo to xml
     let comic_info_xml =

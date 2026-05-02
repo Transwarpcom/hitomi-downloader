@@ -45,7 +45,6 @@ pub struct ComicInfo {
 
 impl ComicInfo {
     pub fn from_comic_with_language(comic: Comic, language: String) -> Self {
-
         ComicInfo {
             manga: "Yes".to_string(),
             series: comic.title,

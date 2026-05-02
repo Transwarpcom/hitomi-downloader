@@ -769,7 +769,11 @@ impl Comic {
     fn update_dir_name_fields_by_fmt(&mut self, app: &AppHandle) -> anyhow::Result<()> {
         let comic_title = &self.title;
 
-        let language = app.state::<parking_lot::RwLock<crate::config::Config>>().read().language.clone();
+        let language = app
+            .state::<parking_lot::RwLock<crate::config::Config>>()
+            .read()
+            .language
+            .clone();
         let fmt_params = DirFmtParams {
             id: self.id,
             title: self.title.clone(),
@@ -778,18 +782,24 @@ impl Comic {
             type_field: crate::tags::translate_tag(&self.type_field, "type", &language),
             artists: self.artists.join(", "),
             tags: {
-                let mut joined_tags = self.tags.iter().map(|tag| {
-                    let ns = if tag.female != 0 {
-                        "female"
-                    } else if tag.male != 0 {
-                        "male"
-                    } else {
-                        "tag"
-                    };
-                    crate::tags::translate_tag(&tag.tag, ns, &language)
-                }).collect::<Vec<String>>().join(", ");
+                let mut joined_tags = self
+                    .tags
+                    .iter()
+                    .map(|tag| {
+                        let ns = if tag.female != 0 {
+                            "female"
+                        } else if tag.male != 0 {
+                            "male"
+                        } else {
+                            "tag"
+                        };
+                        crate::tags::translate_tag(&tag.tag, ns, &language)
+                    })
+                    .collect::<Vec<String>>()
+                    .join(", ");
                 if joined_tags.chars().count() > 100 {
-                    joined_tags = format!("{}...", joined_tags.chars().take(97).collect::<String>());
+                    joined_tags =
+                        format!("{}...", joined_tags.chars().take(97).collect::<String>());
                 }
                 joined_tags
             },

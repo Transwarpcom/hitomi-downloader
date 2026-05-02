@@ -372,7 +372,7 @@ defineExpose({ search })
         <comic-card
           :search="search"
           v-model:comic="store.searchResult.comics[index]" />
-        <div class="absolute top-2 left-2 z-10 bg-white/50 rounded flex items-center justify-center p-1">
+        <div class="absolute top-2 left-2 z-10 bg-white/50 rounded flex items-center justify-center p-1" @mousedown.stop @touchstart.stop @pointerdown.stop @click.stop>
           <n-checkbox
             size="large"
             :checked="selectedIds.has(comic.id)"
