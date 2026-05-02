@@ -8,7 +8,7 @@ import { locales } from './locales'
 export type SupportedLocales = keyof typeof locales
 export type MessageSchema = (typeof locales)['zh-CN']
 
-// 创建并配置 Vue I18n 实例，用于国际化
+/** 创建并配置 Vue I18n 实例，用于国际化 */
 export const i18n = createI18n<[MessageSchema], SupportedLocales>({
   // 如果浏览器的语言在支持的语言列表中，则使用浏览器语言，否则回退到英语 ('en-US')
   locale: navigator.language in locales ? navigator.language : 'en-US',
