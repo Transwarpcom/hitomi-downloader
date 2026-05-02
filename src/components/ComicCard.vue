@@ -66,6 +66,7 @@ async function showComicDownloadDirInFileManager() {
       <div class="flex flex-col w-full overflow-hidden gap-row-1">
         <div
           class="font-bold text-xl line-clamp-2 cursor-pointer transition-colors duration-200 hover:text-blue-5"
+          :title="comic.title"
           @click="pickComic">
           {{ comic.title }}
         </div>
