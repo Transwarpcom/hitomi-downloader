@@ -43,6 +43,7 @@ function getOrFetchImage(index: number): Promise<string | undefined> {
       return URL.createObjectURL(blob)
     } else {
       console.error(result.error)
+      imageCache.delete(index)
       return undefined
     }
   })()
@@ -52,25 +53,26 @@ function getOrFetchImage(index: number): Promise<string | undefined> {
 }
 
 async function loadCurrentImage() {
-  if (!store.pickedComic || store.pickedComic.files.length === 0) return
+  const comic = store.pickedComic
+  if (!comic || comic.files.length === 0) return
 
   loading.value = true
   const index = currentIndex.value
 
   const url = await getOrFetchImage(index)
-  if (currentIndex.value !== index) {
+  if (currentIndex.value !== index || store.pickedComic !== comic) {
     return
   }
 
   if (store.currentTabName === 'reader') {
     currentImage.value = url
-    loading.value = false
   }
+  loading.value = false
 
   // Preload next images and previous images
   const preloadIndices = [index + 1, index + 2, index + 3, index - 1]
   for (const i of preloadIndices) {
-    if (i >= 0 && i < store.pickedComic.files.length) {
+    if (i >= 0 && i < comic.files.length) {
       getOrFetchImage(i).catch(() => {})
     }
   }
