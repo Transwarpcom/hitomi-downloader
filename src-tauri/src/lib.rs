@@ -1,4 +1,4 @@
-// 声明项目内部的模块
+//! 声明项目内部的模块
 mod commands;
 mod config;
 mod download_manager;
