@@ -8,29 +8,94 @@ const currentIndex = ref(0)
 const currentImage = ref<string | undefined>(undefined)
 const loading = ref(false)
 
+const imageCache = new Map<number, Promise<string | undefined>>()
+
+function clearCache() {
+  for (const promise of imageCache.values()) {
+    promise.then(url => {
+      if (url) URL.revokeObjectURL(url)
+    }).catch(() => {})
+  }
+  imageCache.clear()
+}
+
+function getOrFetchImage(index: number): Promise<string | undefined> {
+  if (!store.pickedComic || index < 0 || index >= store.pickedComic.files.length) {
+    return Promise.resolve(undefined)
+  }
+  if (imageCache.has(index)) {
+    return imageCache.get(index)!
+  }
+
+  const promise = (async () => {
+    const comic = store.pickedComic
+    if (!comic) return undefined
+    const file = comic.files[index]
+    const result = await commands.getImageData(
+      comic.id,
+      comic.isDownloaded ?? null,
+      comic.comicDownloadDir ?? null,
+      file
+    )
+    if (result.status === 'ok') {
+      const data = new Uint8Array(result.data)
+      const blob = new Blob([data])
+      return URL.createObjectURL(blob)
+    } else {
+      console.error(result.error)
+      imageCache.delete(index)
+      return undefined
+    }
+  })()
+
+  imageCache.set(index, promise)
+  return promise
+}
+
 async function loadCurrentImage() {
-  if (!store.pickedComic || store.pickedComic.files.length === 0) return
+  const comic = store.pickedComic
+  if (!comic || comic.files.length === 0) return
 
   loading.value = true
-  const file = store.pickedComic.files[currentIndex.value]
-  const result = await commands.getImageData(store.pickedComic.id, store.pickedComic.isDownloaded ?? null, store.pickedComic.comicDownloadDir ?? null, file)
+  const index = currentIndex.value
 
-  if (result.status === 'ok') {
-    const data = new Uint8Array(result.data)
-    const blob = new Blob([data])
-    if (currentImage.value) {
-      URL.revokeObjectURL(currentImage.value)
-    }
-    currentImage.value = URL.createObjectURL(blob)
-  } else {
-    console.error(result.error)
+  const url = await getOrFetchImage(index)
+  if (currentIndex.value !== index || store.pickedComic !== comic) {
+    return
+  }
+
+  if (store.currentTabName === 'reader') {
+    currentImage.value = url
   }
   loading.value = false
+
+  // Preload next images and previous images
+  const preloadIndices = [index + 1, index + 2, index + 3, index - 1]
+  for (const i of preloadIndices) {
+    if (i >= 0 && i < comic.files.length) {
+      getOrFetchImage(i).catch(() => {})
+    }
+  }
+
+  // Cleanup old cache entries to free memory
+  for (const key of imageCache.keys()) {
+    if (key < index - 3 || key > index + 3) {
+      const promise = imageCache.get(key)
+      if (promise) {
+        promise.then(u => {
+          if (u) URL.revokeObjectURL(u)
+        }).catch(() => {})
+      }
+      imageCache.delete(key)
+    }
+  }
 }
 
 watch(
   () => store.pickedComic,
   () => {
+    clearCache()
+    currentImage.value = undefined
     currentIndex.value = 0
     if (store.currentTabName === 'reader') {
       loadCurrentImage()
@@ -77,9 +142,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
-  if (currentImage.value) {
-    URL.revokeObjectURL(currentImage.value)
-  }
+  clearCache()
+  currentImage.value = undefined
 })
 </script>
 
