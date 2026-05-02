@@ -130,6 +130,9 @@ async function showComicDownloadDirInFileManager() {
           <n-button v-if="store.pickedComic.isDownloaded" size="small" @click="showComicDownloadDirInFileManager">
             {{ t('common.open_directory') }}
           </n-button>
+          <n-button size="small" type="info" @click="store.currentTabName = 'reader'">
+            {{ t('comic_pane.read') }}
+          </n-button>
           <download-button
             class="mt-auto"
             size="small"

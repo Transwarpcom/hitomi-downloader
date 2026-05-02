@@ -228,7 +228,7 @@ function useSuggestion() {
   }
 }
 
-const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu } = useMultiSelect()
+const { selectedIds, selectionAreaRef, selectableRefs, updateSelectedIds, unselectAll, onContextMenu, toggleSelection } = useMultiSelect()
 const { contextMenuX, contextMenuY, contextMenuShowing, contextMenuOptions, showContextMenu } = useContextMenu()
 
 watch(() => store.searchResult, () => {
@@ -367,11 +367,18 @@ defineExpose({ search })
         :key="comic.id"
         ref="selectableRefs"
         :data-key="comic.id"
-        :class="['selectable rounded p-[2px]', selectedIds.has(comic.id) ? 'selected' : '']"
+        :class="['selectable rounded p-[2px] relative', selectedIds.has(comic.id) ? 'selected' : '']"
         @contextmenu="() => onContextMenu(comic.id)">
         <comic-card
           :search="search"
           v-model:comic="store.searchResult.comics[index]" />
+        <div class="absolute top-2 left-2 z-10 bg-white/50 rounded flex items-center justify-center p-1">
+          <n-checkbox
+            size="large"
+            :checked="selectedIds.has(comic.id)"
+            @update:checked="(checked: boolean) => toggleSelection(comic.id, checked)"
+          />
+        </div>
       </div>
       <n-dropdown
         placement="bottom-start"

@@ -90,7 +90,11 @@
     "name": "漫画详情",
     "other_language": "其他语言",
     "empty_description": "请先选择漫画(@:search_pane.name @:downloaded_pane.name)",
-    "related": "相关漫画"
+    "related": "相关漫画",
+    "read": "阅读"
+  },
+  "reader_pane": {
+    "name": "阅读器"
   },
   "downloading_pane": {
     "name": "下载列表",
